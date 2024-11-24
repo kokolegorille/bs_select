@@ -49,12 +49,26 @@ module.exports = (_env, options) => {
 
         module: {
             rules: [
+                // UNCOMMENT to use babel-loader to compile Javascript
+                // {
+                //     test: /\.js$/,
+                //     exclude: /node_modules/,
+                //     use: {
+                //         loader: "babel-loader"
+                //     }
+                // },
+
+                // UNCOMMENT to use esbuild to compile JavaScript & TypeScript
                 {
-                    test: /\.js$/,
-                    exclude: /node_modules/,
-                    use: {
-                        loader: "babel-loader"
-                    }
+                    // Match `.js`, `.jsx`, `.ts` or `.tsx` files
+                    test: /\.[jt]sx?$/,
+                    loader: "esbuild-loader",
+                    // options: {
+                    //     loader: "jsx",
+                    //     // JavaScript version to compile to
+                    //     target: "es2015",
+                    //     jsx: "automatic",
+                    // }
                 },
 
                 // // Expose loader v1.x new syntax

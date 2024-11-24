@@ -144,3 +144,73 @@ module.exports = (_env, options) => {
     }
 
 ```
+
+## Webpack et babel
+
+```bash
+% npm start
+
+> bs_select@1.0.0 start
+> webpack serve --mode development
+
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:8080/, http://[::1]:8080/
+<i> [webpack-dev-server] On Your Network (IPv4): http://169.254.73.28:8080/
+<i> [webpack-dev-server] Content not from webpack is served from '/Users/sqrt/DATA_2024/_4AM/code/_MAC/_LAB/bs_select/dist' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+<i> [webpack-dev-middleware] wait until bundle finished: /
+4 assets
+143 modules
+webpack 5.96.1 compiled successfully in 1070 ms
+```
+
+## Test esbuild-loader
+
+```bash
+$ npm i -D esbuild-loader
+```
+
+Modifier la config
+
+```js
+                // UNCOMMENT to use babel-loader to compile Javascript
+                // {
+                //     test: /\.js$/,
+                //     exclude: /node_modules/,
+                //     use: {
+                //         loader: "babel-loader"
+                //     }
+                // },
+
+                // UNCOMMENT to use esbuild to compile JavaScript & TypeScript
+                {
+                    // Match `.js`, `.jsx`, `.ts` or `.tsx` files
+                    test: /\.[jt]sx?$/,
+                    loader: "esbuild-loader",
+                    // options: {
+                    //     loader: "jsx",
+                    //     // JavaScript version to compile to
+                    //     target: "es2015",
+                    //     jsx: "automatic",
+                    // }
+                },
+```
+
+Ensuite on lance
+
+```bash
+% npm start
+
+> bs_select@1.0.0 start
+> webpack serve --mode development
+
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:8080/, http://[::1]:8080/
+<i> [webpack-dev-server] On Your Network (IPv4): http://169.254.73.28:8080/
+<i> [webpack-dev-server] Content not from webpack is served from '/Users/sqrt/DATA_2024/_4AM/code/_MAC/_LAB/bs_select/dist' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+<i> [webpack-dev-middleware] wait until bundle finished: /
+4 assets
+143 modules
+webpack 5.96.1 compiled successfully in 1043 ms
+```
