@@ -1,6 +1,47 @@
+# Tester bootstrap select avec webpack
+
+Il y a un problème pour compiler bootstrap sass
+
+=> @import "~bootstrap/dist/css/bootstrap.css";
+
+## Import depuis CDN
+
+Cette config fonctionne...
+
+```html
+        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+```
+
+## Configuration webpack
+
+Cela se resume par la configuration de webpack...
+
+Use expose-loader if:
+
+    You need to make modules like jQuery available globally for legacy scripts.
+    Global variables are required (e.g., $ or jQuery).
+
+Use resolve alias if:
+
+    You want to redirect imports to a specific version or path.
+    You have multiple libraries requiring different versions of a module.
+
+Use ProvidePlugin if:
+
+    You’re working with a modern codebase and want to avoid repetitive imports.
+    You don’t want to pollute the global namespace but need common dependencies like $ or React in your modules.
+
+Il semble que provide plugin est approprié
+
+```js
 const webpack = require("webpack");
 const path = require("path");
-// const glob = require("glob");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
@@ -9,40 +50,18 @@ const CopyWebpackPlugin = require("copy-webpack-plugin")
 // Dev server
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 
-// const VENDOR_LIBS = [
-//   "bootstrap", "jquery", "@popperjs/core",
-// ];
-
 module.exports = (_env, options) => {
     const devMode = options.mode !== 'production';
 
     return {
         stats: "minimal",
         optimization: {
-            // https://github.com/webpack/webpack/issues/6357
-
-            // IT IS VERY IMPORTANT!
-            // THIS ALSO AVOID THE NEED TO USE OF EXPOSE_LOADER!
-            // Interference when caching bootstrap with bootstrap-select!
-            //   splitChunks: {
-            //     cacheGroups: {
-            //       vendor: {
-            //         // test: /jquery|popper.js|bootstrap/,
-            //         // test: /jquery|popper.js/,
-            //         test: /jquery|@popperjs/,
-            //         chunks: "initial",
-            //         name: "vendor",
-            //         enforce: true
-            //       }
-            //     }
-            //   },
             minimizer: [
                 new TerserPlugin({}),
                 new CssMinimizerPlugin({})
             ]
         },
         entry: {
-            // libs: VENDOR_LIBS.concat(glob.sync("./vendor/**/*.js")),
             app: "./src/index.js",
         },
         devtool: devMode ? 'eval-cheap-module-source-map' : undefined,
@@ -56,23 +75,6 @@ module.exports = (_env, options) => {
                         loader: "babel-loader"
                     }
                 },
-
-                // // Expose loader v1.x new syntax
-                // {
-                //     test: require.resolve('jquery'),
-                //     loader: 'expose-loader',
-                //     options: {
-                //         exposes: ['$', 'jQuery']
-                //     }
-                // },
-
-                // {
-                //     test: require.resolve('bootstrap'),
-                //     loader: 'expose-loader',
-                //     options: {
-                //       exposes: ['bootstrap'], // Expose Bootstrap globally
-                //     },
-                //   },
 
                 // Load stylesheets
                 {
@@ -110,12 +112,6 @@ module.exports = (_env, options) => {
             ]
         },
 
-        // resolve: {
-        //     alias: {
-        //       jquery: require.resolve('jquery'), // Resolve to the installed jQuery version
-        //     },
-        //   },
-
         plugins: [
             new webpack.ProvidePlugin({
                 $: 'jquery', // Automatically provide $ globally
@@ -146,4 +142,5 @@ module.exports = (_env, options) => {
             // port: 8080,
         }
     }
-}
+
+```
